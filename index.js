@@ -22,7 +22,7 @@ const getRoomUsers = (roomId) => {
 
 const port = 3001;
 app.get("/", (req, res) => {
-    res.send("Hello world");
+    res.send("Rubix Private Server");
 })
 
 io.on("connection", socket => {
