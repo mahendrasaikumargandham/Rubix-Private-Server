@@ -1,26 +1,21 @@
 const express = require("express");
 const app = express();
-const cors = require("cors");
 const server = require("http").createServer(app)
-const io = require("socket.io")(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+const io = require("socket.io")(server);
+const cors = require("cors");
 
-app.use(cors());
+
+app.use(cors({ origin: true }));
 
 let users = [];
-let host;
-
-const addUser = (userName, userEmail, roomId, currentLocation, reachedTime) => {
+const addUser = (userName, userEmail, roomId, latitude, longitude, timeStamp) => {
     users.push({
         userName: userName,
         userEmail: userEmail,
         roomId: roomId,
-        currentLocation: currentLocation,
-        reachedTime: reachedTime
+        latitude: latitude,
+        longitude: longitude,
+        timeStamp: timeStamp,
     })
 }
 
@@ -35,53 +30,38 @@ const port = 3000;
 app.get("/", (req, res) => {
     res.send("Rubix Private Server");
 })
+app.get('/cors', (req, res) => {
+    res.send('This has CORS enabled');
+    res.send("fgsuf");
+})
 
 io.on("connection", socket => {
     console.log("Someone Connected")
-    socket.on("join-room", ({ userName, userEmail, roomId, currentLocation, reachedTime }) => {
+    socket.on("join-room", ({ userName, userEmail, roomId, latitude, longitude, timeStamp}) => {
         console.log("User joined room");
         console.log(userName)
         console.log(roomId)
         console.log(userEmail)
-        console.log(currentLocation)
+        console.log("timeStamp: ",timeStamp);
         if(roomId && userName) {
             socket.join(roomId) 
-            addUser(userName, userEmail, roomId, currentLocation, reachedTime)
+            addUser(userName, userEmail, roomId, latitude, longitude, timeStamp)
             socket.to(roomId).emit("user-connected", userName);
             io.to(roomId).emit("all-users", getRoomUsers(roomId));
             console.log(users);
         }
 
-        socket.on("messages",({ userName, userEmail, message, currentLocation, reachedTime, messageType }) => {
+        socket.on("messages",({ userName, userEmail, message, latitude, longitude, timeStamp, ipAddress }) => {
             console.log(userName)
             console.log(message)
             console.log(userEmail)
-            console.log(currentLocation)
-            console.log(reachedTime)
-            console.log(messageType)
-            io.emit("messages", ({ userName, userEmail, message, currentLocation, reachedTime, messageType }));
+            console.log(latitude)
+            console.log(longitude)
+            console.log(ipAddress)
+            console.log(timeStamp)
+            io.emit("messages", ({ userName, userEmail, message, latitude, longitude, timeStamp, ipAddress }));
         })
 
-        socket.on("callUser", ({ userToCall, signalData, from, name}) => {
-            io.to(userToCall).emit("callUser", {
-                signal: signalData,
-                from, 
-                name
-            })
-        })
-
-        socket.on("updateMyMedia", ({ type, currentMediaStatus }) => {
-            console.log("updateUserMedia")
-            socket.broadcast.emit("updateUserMedia", { type, currentMediaStatus })
-        })
-
-        socket.on("answerCall", (data) => {
-            socket.broadcast.emit("updateUserMedia", {
-                type: data.type,
-                currentMediaStatus: data.myMediaStatus,
-            })
-            io.to(data.to).emit("callAccepted", data);
-        })
         socket.on("disconnect", () => {
             console.log("Disconnected");
             socket.leave(roomId);
