@@ -37,11 +37,12 @@ app.get('/cors', (req, res) => {
 
 io.on("connection", socket => {
     console.log("Someone Connected")
-    socket.on("join-room", ({ userName, userEmail, roomId, latitude, longitude, timeStamp}) => {
+    socket.on("join-room", ({ userName, userEmail, roomId, latitude, longitude, timeStamp, ipAddress }) => {
         console.log("User joined room");
         console.log(userName)
         console.log(roomId)
         console.log(userEmail)
+        console.log(ipAddress)
         console.log("timeStamp: ",timeStamp);
         if(roomId && userName) {
             socket.join(roomId) 
