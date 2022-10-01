@@ -8,7 +8,7 @@ const cors = require("cors");
 app.use(cors({ origin: true }));
 
 let users = [];
-const addUser = (userName, userEmail, roomId, latitude, longitude, timeStamp) => {
+const addUser = (userName, userEmail, roomId, latitude, longitude, timeStamp, exactTime) => {
     users.push({
         userName: userName,
         userEmail: userEmail,
@@ -16,6 +16,7 @@ const addUser = (userName, userEmail, roomId, latitude, longitude, timeStamp) =>
         latitude: latitude,
         longitude: longitude,
         timeStamp: timeStamp,
+        exactTime: exactTime,
     })
 }
 
@@ -37,16 +38,17 @@ app.get('/cors', (req, res) => {
 
 io.on("connection", socket => {
     console.log("Someone Connected")
-    socket.on("join-room", ({ userName, userEmail, roomId, latitude, longitude, timeStamp, ipAddress }) => {
+    socket.on("join-room", ({ userName, userEmail, roomId, latitude, longitude, timeStamp, ipAddress, exactTime }) => {
         console.log("User joined room");
         console.log(userName)
         console.log(roomId)
         console.log(userEmail)
         console.log(ipAddress)
+        console.log(exactTime);
         console.log("timeStamp: ",timeStamp);
         if(roomId && userName) {
             socket.join(roomId) 
-            addUser(userName, userEmail, roomId, latitude, longitude, timeStamp)
+            addUser(userName, userEmail, roomId, latitude, longitude, timeStamp, exactTime);
             socket.to(roomId).emit("user-connected", userName);
             io.to(roomId).emit("all-users", getRoomUsers(roomId));
             console.log(users);
