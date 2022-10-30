@@ -40,12 +40,14 @@ io.on("connection", socket => {
     console.log("Someone Connected")
     socket.on("join-room", ({ userName, userEmail, roomId, latitude, longitude, timeStamp, ipAddress, exactTime }) => {
         console.log("User joined room");
-        console.log(userName)
-        console.log(roomId)
-        console.log(userEmail)
-        console.log(ipAddress)
-        console.log(exactTime);
-        console.log("timeStamp: ",timeStamp);
+        console.log(`User Name :`${userName})
+        console.log(`Message :`${message})
+        console.log(`User Email :`${userEmail})
+        console.log(`Latitude :`${latitude})
+        console.log(`Longitude :`${longitude})
+        console.log(`IP Address :`${ipAddress})
+        console.log(`Time Stamp :`${timeStamp})
+        console.log(`Exact Time: `${exactTime})
         if(roomId && userName) {
             socket.join(roomId) 
             addUser(userName, userEmail, roomId, latitude, longitude, timeStamp, exactTime);
@@ -54,15 +56,16 @@ io.on("connection", socket => {
             console.log(users);
         }
 
-        socket.on("messages",({ userName, userEmail, message, latitude, longitude, timeStamp, ipAddress }) => {
-            console.log(userName)
-            console.log(message)
-            console.log(userEmail)
-            console.log(latitude)
-            console.log(longitude)
-            console.log(ipAddress)
-            console.log(timeStamp)
-            io.emit("messages", ({ userName, userEmail, message, latitude, longitude, timeStamp, ipAddress }));
+        socket.on("messages",({ userName, userEmail, message, latitude, longitude, timeStamp, ipAddress, exactTime }) => {
+            console.log(`User Name :`${userName})
+            console.log(`Message :`${message})
+            console.log(`User Email :`${userEmail})
+            console.log(`Latitude :`${latitude})
+            console.log(`Longitude :`${longitude})
+            console.log(`IP Address :`${ipAddress})
+            console.log(`Time Stamp :`${timeStamp})
+            console.log(`Exact Time: `${exactTime})
+            io.emit("messages", ({ userName, userEmail, message, latitude, longitude, timeStamp, ipAddress, exactTime }));
         })
 
         socket.on("disconnect", () => {
